@@ -2,16 +2,15 @@
 
 __global__ void print_from_gpu(void)
 {
-  printf("Hello, World! from thread [%d, %d] on device! \n", threadIdx.x, blockIdx.x);
+  printf("Hello, World! from thread [%d, %d, %d, %d] on device! \n", threadIdx.x, blockIdx.x, blockIdx.y, blockIdx.z);
 }
 
 int main()
 {
   printf("Hello, World! from host! \n");
-  print_from_gpu<<<5,3>>>();
+  dim3 Dg(3, 2, 3);
+  print_from_gpu<<<Dg,1>>>();
   cudaDeviceSynchronize();
-  
-  getchar();
   
   return 1;
 }
