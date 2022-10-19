@@ -2,21 +2,15 @@
 
 __global__ void device_add(int *a, int *b, int *c, int cnt)
 {
-	int capacity = 512 * 65535;
+	int capacity = gridDim.x * blockDim.x;
 	int count = 0;
 	while(count < cnt / capacity)
 	{
 		int index = threadIdx.x + blockIdx.x * blockDim.x;
 		int newIndex = index + (capacity * count);
 		
-		//printf("%d, %d\n", index, count);
 		c[newIndex] = a[newIndex] + b[newIndex];
-		//printf("%d + %d = %d\n", a[newIndex], b[newIndex], c[newIndex]);
 		count++;
-		
-		
-		//if(newIndex > capacity * 2)
-		//	printf("%d, %d\n", newIndex, c[newIndex]);
 	}
 }
 
@@ -52,8 +46,6 @@ int main()
 	
 	// copy the array 'c' back from the GPU to the CPU
 	cudaMemcpy( c, dev_c, arr_cnt * sizeof(int), cudaMemcpyDeviceToHost );
-	
-	printf("%d", arr_cnt);
 	
 	// verify that the GPU did the work we requested
 	bool success = true;
