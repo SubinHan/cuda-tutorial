@@ -5,9 +5,7 @@
 */
 
 #include <stdio.h>
-extern "C"{
 #include "../Common/Timer.h"
-}
 #define LENGTH 1000
 
 void MatrixMul(int* M, int* N, int* P)

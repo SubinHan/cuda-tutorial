@@ -27,3 +27,20 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
     }
     return 0;
 }
+
+float timevalToFloat(struct timeval* time){
+	float val;
+	val = time->tv_sec;
+	val += (time->tv_usec * 0.000001);
+	return val;
+}
+
+void getGapTime(struct timeval* start_time, struct timeval* end_time, struct timeval* gap_time)
+{
+	gap_time->tv_sec = end_time->tv_sec - start_time->tv_sec;
+	gap_time->tv_usec = end_time->tv_usec - start_time->tv_usec;
+	if(gap_time->tv_usec < 0){
+		gap_time->tv_usec = gap_time->tv_usec + 1000000;
+		gap_time->tv_sec -= 1;
+	}
+}
