@@ -1,10 +1,13 @@
 #include <stdio.h>
+#include "../Common/Timer.h"
 
 #define SIZE 2048
+#define BLOCK_SIZE 128
 
 // motivate shared variables with
 // Adjacent Difference application:
 // compute result[i] = input[i] – input[i-1]
+
 __global__ void adj_diff_naive(int *result, int *input)
 {
 	// compute this thread’s global index
@@ -20,10 +23,32 @@ __global__ void adj_diff_naive(int *result, int *input)
 	}
 }
 
+__global__ void adj_diff_shared(int* result, int* input)
+{
+	int tx = threadIdx.x;
+	__shared__ int s_data[BLOCK_SIZE];
+	
+	// each thread reads one element to s_data
+	unsigned int i = blockDim.x * blockIdx.x + tx;
+	s_data[tx] = input[i];
+	
+	// avoid race condition: ensure all loads
+	// complete before continuing
+	__syncthreads();
+	
+	if(tx > 0) 
+		result[i] = s_data[tx] + s_data[tx-1];
+	else if(i > 0) 
+		result[i] = s_data[tx] + input[i-1];
+}
+
 int main()
 {
 	const int size = SIZE;
 	const int BufferSize = size*sizeof(int);
+	
+	struct timeval naive_start, naive_end;
+	struct timeval shared_start, shared_end;
 	
 	int* Input; int* Output;
 	
@@ -44,7 +69,21 @@ int main()
 	
 	cudaMemcpy(dev_In, Input, size*sizeof(int), cudaMemcpyHostToDevice);
 	
-	adj_diff_naive<<<32,64>>>(dev_Out, dev_In);
+	int num_block = SIZE / BLOCK_SIZE;
+	
+	gettimeofday(&naive_start, NULL);
+	adj_diff_naive<<<num_block, BLOCK_SIZE>>>(dev_Out, dev_In);
+	gettimeofday(&naive_end, NULL);
+	
+	gettimeofday(&shared_start, NULL);
+	adj_diff_shared<<<num_block, BLOCK_SIZE>>>(dev_Out, dev_In);
+	gettimeofday(&shared_end, NULL);
+	
+	struct timeval naive_gap, shared_gap;
+	getGapTime(&naive_start, &naive_end, &naive_gap); 
+	getGapTime(&shared_start, &shared_end, &shared_gap); 
+	float f_naive_gap = timevalToFloat(&naive_gap);
+	float f_shared_gap = timevalToFloat(&shared_gap);
 	
 	cudaMemcpy(Output, dev_Out, size*sizeof(int), cudaMemcpyDeviceToHost);
 	
@@ -66,6 +105,8 @@ int main()
 			break;
 		}
 	}
+	
+	printf("naive: %f\n shared: %f\n", f_naive_gap, f_shared_gap);
 	
 	cudaFree(dev_In); cudaFree(dev_Out);
 	free(Input); free(Output);

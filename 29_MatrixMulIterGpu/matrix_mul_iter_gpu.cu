@@ -19,7 +19,6 @@ __global__ void MatrixMulCuda( int*M, int*N, int*P, int LENGTH )
 	P[tid] = Value;
 }
 
-
 int main()
 {
 	srand(time(NULL));

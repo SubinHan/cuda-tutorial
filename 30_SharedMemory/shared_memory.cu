@@ -27,6 +27,7 @@ int main()
 	const int size = MAX_SHAREDSIZE;
 	const int BufferSize = size*sizeof(int);
 	
+	
 	int* Input; int* Output;
 	
 	Input = (int*)malloc(BufferSize);

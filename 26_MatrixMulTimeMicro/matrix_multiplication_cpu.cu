@@ -78,7 +78,7 @@ int main()
   if(diff.tv_usec < 0l)
   {
 	diff.tv_sec--;
-	diff.tv_usec *= -1;
+	diff.tv_usec += 1000000;
   }
   
   printTime(diff);
