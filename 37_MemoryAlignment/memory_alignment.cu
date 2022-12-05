@@ -12,9 +12,9 @@ int main()
 	int* data1; int* data2; int* data3;
 	int* dev_data1; int* dev_data2; int* dev_data3;
 	
-	data1 = (int*)malloc(sizeof(int));
-	data2 = (int*)malloc(sizeof(int));
-	data3 = (int*)malloc(sizeof(int));
+	data1 = (int*)malloc(sizeof(int) * 128);
+	data2 = (int*)malloc(sizeof(int) * 128);
+	data3 = (int*)malloc(sizeof(int) * 128);
 	
 	data1[0] = 1; data2[0] = 2; data3[0] = 3;
 	
@@ -22,9 +22,9 @@ int main()
 	printf("[host] data2 addr: %p\n", data2);
 	printf("[host] data3 addr: %p\n", data3);
 	
-	cudaMalloc((void**)&dev_data1, sizeof(int));
-	cudaMalloc((void**)&dev_data2, sizeof(int));
-	cudaMalloc((void**)&dev_data3, sizeof(int));
+	cudaMalloc((void**)&dev_data1, sizeof(int) * 129);
+	cudaMalloc((void**)&dev_data2, sizeof(int) * 128);
+	cudaMalloc((void**)&dev_data3, sizeof(int) * 128);
 	
 	cudaMemcpy(dev_data1, data1, sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_data2, data2, sizeof(int), cudaMemcpyHostToDevice);
